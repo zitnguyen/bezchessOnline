@@ -53,7 +53,10 @@ exports.getAllCourses = async (query) => {
     isPublished: true,
   };
 
-  if (query.category) filter.category = query.category;
+  if (query.category) {
+    // Category là array trong model, nên dùng $in để query
+    filter.category = { $in: [query.category] };
+  }
   if (query.level) filter.level = query.level;
 
   if (query.search) {
@@ -67,14 +70,43 @@ exports.getAllCourses = async (query) => {
       .populate("instructor", "username email")
       .sort("-createdAt")
       .skip((page - 1) * limit)
-      .limit(limit)
-      .lean(),
+      .limit(limit),
 
     Course.countDocuments(filter),
   ]);
 
+  const Chapter = require("../models/Chapter");
+  const Lesson = require("../models/Lesson");
+
+  const plainCourses = await Promise.all(
+    courses.map(async (c) => {
+      const chapters = await Chapter.find({ courseId: c._id, isDeleted: false })
+        .select("-__v -courseId")
+        .sort({ order: 1 });
+
+      const curriculumWithLessons = await Promise.all(
+        chapters.map(async (chapter) => {
+          const lessons = await Lesson.find({
+            chapterId: chapter._id,
+            isDeleted: false,
+          })
+            .select("-__v -chapterId")
+            .sort({ order: 1 });
+          return {
+            ...chapter.toObject(),
+            lessons,
+          };
+        }),
+      );
+
+      const courseObj = c.toObject({ virtuals: true });
+      courseObj.curriculum = curriculumWithLessons;
+      return courseObj;
+    }),
+  );
+
   return {
-    courses,
+    courses: plainCourses,
     total,
     totalPages: Math.ceil(total / limit),
     currentPage: page,
@@ -96,14 +128,41 @@ exports.getCourseById = async (idOrSlug, isAdmin = false) => {
 
   const course = await Course.findOne(query)
     .select("-__v")
-    .populate("instructor", "username email")
-    .lean();
+    .populate("instructor", "username email");
 
   if (!course) {
     throw new AppError("Course not found", 404);
   }
 
-  return course;
+  const Chapter = require("../models/Chapter");
+  const Lesson = require("../models/Lesson");
+
+  const chapters = await Chapter.find({
+    courseId: course._id,
+    isDeleted: false,
+  })
+    .select("-__v -courseId")
+    .sort({ order: 1 });
+
+  const curriculumWithLessons = await Promise.all(
+    chapters.map(async (chapter) => {
+      const lessons = await Lesson.find({
+        chapterId: chapter._id,
+        isDeleted: false,
+      })
+        .select("-__v -chapterId")
+        .sort({ order: 1 });
+      return {
+        ...chapter.toObject(),
+        lessons,
+      };
+    }),
+  );
+
+  const courseObj = course.toObject({ virtuals: true });
+  courseObj.curriculum = curriculumWithLessons;
+
+  return courseObj;
 };
 //cập nhật khóa học
 exports.updateCourse = async (id, data, instructorId, userRole) => {
@@ -123,9 +182,17 @@ exports.updateCourse = async (id, data, instructorId, userRole) => {
     "title",
     "description",
     "price",
+    "salePrice",
     "level",
     "category",
+    "tags",
     "thumbnail",
+    "rating",
+    "totalReviews",
+    "totalStudents",
+    "hasCertificate",
+    "reviews",
+    "whatYouWillLearn",
   ];
 
   for (const field of allowedFields) {
@@ -183,14 +250,43 @@ exports.getAllCoursesForAdmin = async (query) => {
       .populate("instructor", "username email")
       .sort("-createdAt")
       .skip((page - 1) * limit)
-      .limit(limit)
-      .lean(),
+      .limit(limit),
 
     Course.countDocuments(filter),
   ]);
 
+  const Chapter = require("../models/Chapter");
+  const Lesson = require("../models/Lesson");
+
+  const plainCourses = await Promise.all(
+    courses.map(async (c) => {
+      const chapters = await Chapter.find({ courseId: c._id, isDeleted: false })
+        .select("-__v -courseId")
+        .sort({ order: 1 });
+
+      const curriculumWithLessons = await Promise.all(
+        chapters.map(async (chapter) => {
+          const lessons = await Lesson.find({
+            chapterId: chapter._id,
+            isDeleted: false,
+          })
+            .select("-__v -chapterId")
+            .sort({ order: 1 });
+          return {
+            ...chapter.toObject(),
+            lessons,
+          };
+        }),
+      );
+
+      const courseObj = c.toObject({ virtuals: true });
+      courseObj.curriculum = curriculumWithLessons;
+      return courseObj;
+    }),
+  );
+
   return {
-    courses,
+    courses: plainCourses,
     total,
     totalPages: Math.ceil(total / limit),
     currentPage: page,

@@ -33,7 +33,7 @@ exports.signin = asyncHandler(async (req, res) => {
     data: {
       userId: user._id,
       username: user.username,
-      fullName: user.fullName || "",
+      name: user.name || "",
       role: user.role,
       accessToken,
     },

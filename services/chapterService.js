@@ -3,14 +3,14 @@ const Course = require("../models/Course");
 const Lesson = require("../models/Lesson");
 const AppError = require("../utils/AppError");
 //tạo chương
-exports.createChapter = async (courseId, title, order) => {
+exports.createChapter = async (courseId, title, order, description) => {
   const course = await Course.findById(courseId);
 
   if (!course) {
     throw new AppError("Course not found", 404);
   }
 
-  //tự đông sắp xếp chương
+  //tự động sắp xếp chương
   if (order === undefined) {
     const lastChapter = await Chapter.findOne({
       courseId,
@@ -23,6 +23,7 @@ exports.createChapter = async (courseId, title, order) => {
   const chapter = await Chapter.create({
     courseId,
     title,
+    description,
     order,
   });
 

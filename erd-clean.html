@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Database Schema - ERD & Relations</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #0f0f23;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: #e0e0e0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        background: rgba(20, 20, 50, 0.95);
+        border-bottom: 2px solid #4a5ff0;
+        padding: 15px 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        z-index: 10;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        color: #4a5ff0;
+        font-weight: 700;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 10px;
+      }
+
+      .tab-btn {
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid #4a5ff0;
+        color: #e0e0e0;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .tab-btn:hover {
+        background: rgba(74, 95, 240, 0.2);
+      }
+
+      .tab-btn.active {
+        background: #4a5ff0;
+        border-color: #4a5ff0;
+        color: #fff;
+      }
+
+      .content {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+      }
+
+      .tab-content {
+        flex: 1;
+        display: none;
+        overflow: auto;
+        padding: 20px;
+      }
+
+      .tab-content.active {
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Tables Grid View */
+      .tables-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .table-card {
+        background: rgba(30, 30, 60, 0.9);
+        border: 2px solid #4a5ff0;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 4px 15px rgba(74, 95, 240, 0.2);
+        transition: all 0.3s ease;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .table-card:hover {
+        box-shadow: 0 6px 25px rgba(74, 95, 240, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .table-card.auth {
+        border-left: 5px solid #34d399;
+      }
+      .table-card.course {
+        border-left: 5px solid #3b82f6;
+      }
+      .table-card.enrollment {
+        border-left: 5px solid #8b5cf6;
+      }
+      .table-card.schedule {
+        border-left: 5px solid #f59e0b;
+      }
+      .table-card.student {
+        border-left: 5px solid #ef4444;
+      }
+      .table-card.finance {
+        border-left: 5px solid #ec4899;
+      }
+      .table-card.cms {
+        border-left: 5px solid #14b8a6;
+      }
+
+      .table-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .fields {
+        font-size: 12px;
+        line-height: 1.8;
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .field {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 4px;
+        padding: 3px 5px;
+        border-radius: 3px;
+      }
+
+      .field:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .field-badge {
+        min-width: 28px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-weight: 600;
+        font-size: 10px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .badge-pk {
+        background: #fbbf24;
+        color: #1f2937;
+      }
+
+      .badge-fk {
+        background: #60a5fa;
+        color: #fff;
+      }
+
+      .badge-empty {
+        visibility: hidden;
+      }
+
+      .field-name {
+        color: #e0e0e0;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .field-type {
+        color: #888;
+        font-size: 10px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* Relations View */
+      .relations-container {
+        width: 100%;
+        overflow: auto;
+      }
+
+      .relations-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(30, 30, 60, 0.5);
+        margin: 20px 0;
+      }
+
+      .relations-table thead {
+        background: rgba(74, 95, 240, 0.2);
+        border-bottom: 2px solid #4a5ff0;
+      }
+
+      .relations-table th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #4a5ff0;
+        border: 1px solid #4a5ff0;
+      }
+
+      .relations-table td {
+        padding: 10px 12px;
+        border: 1px solid rgba(74, 95, 240, 0.3);
+        color: #e0e0e0;
+      }
+
+      .relations-table tr:nth-child(even) {
+        background: rgba(74, 95, 240, 0.05);
+      }
+
+      .relations-table tr:hover {
+        background: rgba(74, 95, 240, 0.15);
+      }
+
+      .badge-relation {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .badge-rel-auth {
+        background: rgba(52, 211, 153, 0.2);
+        color: #34d399;
+      }
+      .badge-rel-course {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+      }
+      .badge-rel-enrollment {
+        background: rgba(139, 92, 246, 0.2);
+        color: #8b5cf6;
+      }
+      .badge-rel-schedule {
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+      }
+      .badge-rel-student {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+      }
+      .badge-rel-finance {
+        background: rgba(236, 72, 153, 0.2);
+        color: #ec4899;
+      }
+      .badge-rel-cms {
+        background: rgba(20, 184, 166, 0.2);
+        color: #14b8a6;
+      }
+
+      /* Legend */
+      .legend {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        font-size: 11px;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border-top: 1px solid rgba(74, 95, 240, 0.3);
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #4a5ff0;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #6b7dff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>⬡ Database Schema</h1>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tables')">
+          📊 Tables View
+        </button>
+        <button class="tab-btn" onclick="switchTab('relations')">
+          🔗 Relations Map
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Tables View -->
+      <div id="tables" class="tab-content active">
+        <div class="tables-grid" id="tables-grid"></div>
+      </div>
+
+      <!-- Relations View -->
+      <div id="relations" class="tab-content">
+        <div class="relations-container">
+          <table class="relations-table">
+            <thead>
+              <tr>
+                <th>From Table</th>
+                <th>Field</th>
+                <th>To Table</th>
+                <th>Type</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody id="relations-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #34d399"></div>
+        <span>Auth</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #3b82f6"></div>
+        <span>Course</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #8b5cf6"></div>
+        <span>Enrollment</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #f59e0b"></div>
+        <span>Schedule</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #ef4444"></div>
+        <span>Student</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #ec4899"></div>
+        <span>Finance</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #14b8a6"></div>
+        <span>CMS</span>
+      </div>
+    </div>
+
+    <script>
+      const tables = [
+        {
+          name: "User",
+          category: "auth",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "username", type: "String" },
+            { name: "email", type: "String" },
+            { name: "phone", type: "String" },
+            { name: "password", type: "String" },
+            { name: "role", type: "Enum" },
+            { name: "name", type: "String" },
+            { name: "avatar", type: "String" },
+            { name: "isActive", type: "Boolean" },
+            { name: "lastLogin", type: "Date" },
+            { name: "birthDate", type: "Date" },
+            { name: "bio", type: "String" },
+          ],
+        },
+        {
+          name: "RefreshToken",
+          category: "auth",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "userId", type: "ObjectId", badge: "FK" },
+            { name: "token", type: "String" },
+            { name: "userAgent", type: "String" },
+            { name: "ipAddress", type: "String" },
+            { name: "expiresAt", type: "Date" },
+          ],
+        },
+        {
+          name: "Course",
+          category: "course",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "title", type: "String" },
+            { name: "slug", type: "String" },
+            { name: "description", type: "String" },
+            { name: "instructor", type: "ObjectId", badge: "FK" },
+            { name: "price", type: "Number" },
+            { name: "salePrice", type: "Number" },
+            { name: "level", type: "Enum" },
+            { name: "isPublished", type: "Boolean" },
+            { name: "totalLessons", type: "Number" },
+            { name: "rating", type: "Number" },
+            { name: "totalStudents", type: "Number" },
+          ],
+        },
+        {
+          name: "Chapter",
+          category: "course",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "courseId", type: "ObjectId", badge: "FK" },
+            { name: "title", type: "String" },
+            { name: "description", type: "String" },
+            { name: "order", type: "Number" },
+            { name: "isPublished", type: "Boolean" },
+            { name: "isDeleted", type: "Boolean" },
+          ],
+        },
+        {
+          name: "Lesson",
+          category: "course",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "chapterId", type: "ObjectId", badge: "FK" },
+            { name: "title", type: "String" },
+            { name: "type", type: "Enum" },
+            { name: "videoUrl", type: "String" },
+            { name: "textContent", type: "String" },
+            { name: "duration", type: "Number" },
+            { name: "isFree", type: "Boolean" },
+            { name: "isPublished", type: "Boolean" },
+            { name: "order", type: "Number" },
+          ],
+        },
+        {
+          name: "Enrollment",
+          category: "enrollment",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "userId", type: "ObjectId", badge: "FK" },
+            { name: "courseId", type: "ObjectId", badge: "FK" },
+            { name: "source", type: "Enum" },
+            { name: "status", type: "Enum" },
+            { name: "enrolledAt", type: "Date" },
+            { name: "progress", type: "Number" },
+            { name: "isCompleted", type: "Boolean" },
+            { name: "lastAccessedAt", type: "Date" },
+          ],
+        },
+        {
+          name: "Review",
+          category: "enrollment",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "userId", type: "ObjectId", badge: "FK" },
+            { name: "courseId", type: "ObjectId", badge: "FK" },
+            { name: "rating", type: "Number" },
+            { name: "comment", type: "String" },
+            { name: "createdAt", type: "Date" },
+          ],
+        },
+        {
+          name: "Learning",
+          category: "enrollment",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "userId", type: "ObjectId", badge: "FK" },
+            { name: "courseId", type: "ObjectId", badge: "FK" },
+            { name: "title", type: "String" },
+            { name: "progressPercent", type: "Number" },
+            { name: "totalLessons", type: "Number" },
+            { name: "completedLessons", type: "Number" },
+            { name: "lastLessonId", type: "String" },
+            { name: "estimatedTime", type: "Number" },
+          ],
+        },
+        {
+          name: "Schedule",
+          category: "schedule",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "studentId", type: "ObjectId", badge: "FK" },
+            { name: "courseId", type: "ObjectId", badge: "FK" },
+            { name: "chapterId", type: "ObjectId", badge: "FK" },
+            { name: "teacherId", type: "ObjectId", badge: "FK" },
+            { name: "lessonName", type: "String" },
+            { name: "level", type: "Enum" },
+            { name: "status", type: "Enum" },
+            { name: "time", type: "String" },
+            { name: "startHour", type: "Number" },
+          ],
+        },
+        {
+          name: "Attendance",
+          category: "schedule",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "classId", type: "ObjectId", badge: "FK" },
+            { name: "studentId", type: "ObjectId", badge: "FK" },
+            { name: "status", type: "Enum" },
+            { name: "note", type: "String" },
+            { name: "date", type: "Date" },
+          ],
+        },
+        {
+          name: "Student",
+          category: "student",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "parentId", type: "ObjectId", badge: "FK" },
+            { name: "fullName", type: "String" },
+            { name: "dateOfBirth", type: "Date" },
+            { name: "email", type: "String" },
+            { name: "phone", type: "String" },
+            { name: "avatar", type: "String" },
+            { name: "skillLevel", type: "Enum" },
+            { name: "progress", type: "Number" },
+          ],
+        },
+        {
+          name: "Registration",
+          category: "student",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "course", type: "ObjectId", badge: "FK" },
+            { name: "approvedBy", type: "ObjectId", badge: "FK" },
+            { name: "studentName", type: "String" },
+            { name: "parentName", type: "String" },
+            { name: "email", type: "String" },
+            { name: "phone", type: "String" },
+            { name: "status", type: "Enum" },
+            { name: "approvedAt", type: "Date" },
+          ],
+        },
+        {
+          name: "Order",
+          category: "finance",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "userId", type: "ObjectId", badge: "FK" },
+            { name: "totalAmount", type: "Number" },
+            { name: "status", type: "Enum" },
+            { name: "paymentMethod", type: "Enum" },
+            { name: "transactionId", type: "String" },
+            { name: "paidAt", type: "Date" },
+            { name: "createdAt", type: "Date" },
+          ],
+        },
+        {
+          name: "Finance",
+          category: "finance",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "orderId", type: "ObjectId", badge: "FK" },
+            { name: "userId", type: "ObjectId", badge: "FK" },
+            { name: "date", type: "Date" },
+            { name: "description", type: "String" },
+            { name: "amount", type: "Number" },
+            { name: "type", type: "Enum" },
+            { name: "category", type: "String" },
+            { name: "status", type: "Enum" },
+          ],
+        },
+        {
+          name: "Post",
+          category: "cms",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "author", type: "ObjectId", badge: "FK" },
+            { name: "title", type: "String" },
+            { name: "slug", type: "String" },
+            { name: "content", type: "String" },
+            { name: "category", type: "Enum" },
+            { name: "tags", type: "Array" },
+            { name: "isPublished", type: "Boolean" },
+            { name: "views", type: "Number" },
+            { name: "likes", type: "Number" },
+          ],
+        },
+        {
+          name: "Contact",
+          category: "cms",
+          fields: [
+            { name: "_id", type: "ObjectId", badge: "PK" },
+            { name: "handledBy", type: "ObjectId", badge: "FK" },
+            { name: "name", type: "String" },
+            { name: "phone", type: "String" },
+            { name: "email", type: "String" },
+            { name: "ageGroup", type: "Enum" },
+            { name: "level", type: "Enum" },
+            { name: "needs", type: "String" },
+            { name: "status", type: "Enum" },
+            { name: "response", type: "String" },
+          ],
+        },
+      ];
+
+      const relations = [
+        {
+          from: "RefreshToken",
+          field: "userId",
+          to: "User",
+          type: "N:1",
+          category: "auth",
+        },
+        {
+          from: "Course",
+          field: "instructor",
+          to: "User",
+          type: "N:1",
+          category: "course",
+        },
+        {
+          from: "Chapter",
+          field: "courseId",
+          to: "Course",
+          type: "N:1",
+          category: "course",
+        },
+        {
+          from: "Lesson",
+          field: "chapterId",
+          to: "Chapter",
+          type: "N:1",
+          category: "course",
+        },
+        {
+          from: "Enrollment",
+          field: "userId",
+          to: "User",
+          type: "N:1",
+          category: "enrollment",
+        },
+        {
+          from: "Enrollment",
+          field: "courseId",
+          to: "Course",
+          type: "N:1",
+          category: "enrollment",
+        },
+        {
+          from: "Review",
+          field: "userId",
+          to: "User",
+          type: "N:1",
+          category: "enrollment",
+        },
+        {
+          from: "Review",
+          field: "courseId",
+          to: "Course",
+          type: "N:1",
+          category: "enrollment",
+        },
+        {
+          from: "Learning",
+          field: "userId",
+          to: "User",
+          type: "N:1",
+          category: "enrollment",
+        },
+        {
+          from: "Learning",
+          field: "courseId",
+          to: "Course",
+          type: "N:1",
+          category: "enrollment",
+        },
+        {
+          from: "Schedule",
+          field: "studentId",
+          to: "User",
+          type: "N:1",
+          category: "schedule",
+        },
+        {
+          from: "Schedule",
+          field: "courseId",
+          to: "Course",
+          type: "N:1",
+          category: "schedule",
+        },
+        {
+          from: "Schedule",
+          field: "chapterId",
+          to: "Chapter",
+          type: "N:1",
+          category: "schedule",
+        },
+        {
+          from: "Schedule",
+          field: "teacherId",
+          to: "User",
+          type: "N:1",
+          category: "schedule",
+        },
+        {
+          from: "Attendance",
+          field: "classId",
+          to: "Schedule",
+          type: "N:1",
+          category: "schedule",
+        },
+        {
+          from: "Attendance",
+          field: "studentId",
+          to: "User",
+          type: "N:1",
+          category: "schedule",
+        },
+        {
+          from: "Student",
+          field: "parentId",
+          to: "User",
+          type: "N:1",
+          category: "student",
+        },
+        {
+          from: "Registration",
+          field: "course",
+          to: "Course",
+          type: "N:1",
+          category: "student",
+        },
+        {
+          from: "Registration",
+          field: "approvedBy",
+          to: "User",
+          type: "N:1",
+          category: "student",
+        },
+        {
+          from: "Order",
+          field: "userId",
+          to: "User",
+          type: "N:1",
+          category: "finance",
+        },
+        {
+          from: "Finance",
+          field: "orderId",
+          to: "Order",
+          type: "N:1",
+          category: "finance",
+        },
+        {
+          from: "Finance",
+          field: "userId",
+          to: "User",
+          type: "N:1",
+          category: "finance",
+        },
+        {
+          from: "Post",
+          field: "author",
+          to: "User",
+          type: "N:1",
+          category: "cms",
+        },
+        {
+          from: "Contact",
+          field: "handledBy",
+          to: "User",
+          type: "N:1",
+          category: "cms",
+        },
+      ];
+
+      // Render tables
+      function renderTables() {
+        const grid = document.getElementById("tables-grid");
+        grid.innerHTML = "";
+
+        tables.forEach((table) => {
+          const card = document.createElement("div");
+          card.className = `table-card ${table.category}`;
+
+          let html = `<div class="table-name">${table.name}</div>`;
+          html += '<div class="fields">';
+
+          table.fields.forEach((field) => {
+            let badge = '<span class="field-badge badge-empty">--</span>';
+            if (field.badge === "PK") {
+              badge = '<span class="field-badge badge-pk">PK</span>';
+            } else if (field.badge === "FK") {
+              badge = '<span class="field-badge badge-fk">FK</span>';
+            }
+
+            html += `
+            <div class="field">
+              ${badge}
+              <span class="field-name">${field.name}</span>
+              <span class="field-type">${field.type}</span>
+            </div>
+          `;
+          });
+
+          html += "</div>";
+          card.innerHTML = html;
+          grid.appendChild(card);
+        });
+      }
+
+      // Render relations
+      function renderRelations() {
+        const tbody = document.getElementById("relations-tbody");
+        tbody.innerHTML = "";
+
+        relations.forEach((rel) => {
+          const row = document.createElement("tr");
+          const categoryBadge = `badge-rel-${rel.category}`;
+
+          row.innerHTML = `
+          <td><strong>${rel.from}</strong></td>
+          <td><code>${rel.field}</code></td>
+          <td><strong>${rel.to}</strong></td>
+          <td><code>${rel.type}</code></td>
+          <td><span class="badge-relation ${categoryBadge}">${rel.category.toUpperCase()}</span></td>
+        `;
+          tbody.appendChild(row);
+        });
+      }
+
+      // Switch tabs
+      function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll(".tab-content").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        // Remove active from all buttons
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        // Show selected tab
+        document.getElementById(tabName).classList.add("active");
+
+        // Activate button
+        event.target.classList.add("active");
+      }
+
+      // Initial render
+      renderTables();
+      renderRelations();
+    </script>
+  </body>
+</html>

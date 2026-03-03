@@ -1,0 +1,107 @@
+/**
+ * Mock Contact & Registration Form Submissions
+ * Strongly typed with @/types
+ */
+
+import type { ContactSubmission, Registration } from "@/types"
+
+// Mock contact submissions (for admin)
+export const mockContactSubmissions: ContactSubmission[] = [
+  {
+    id: "contact-001",
+    name: "Lê Thị Minh",
+    phone: "0912345678",
+    email: "minh.le@email.com",
+    ageGroup: "6-8",
+    level: "beginner",
+    needs: "tư vấn",
+    preferredTime: "morning",
+    note: "Con em muốn học cờ vua từ cơ bản",
+    status: "new",
+    createdAt: "2026-02-27T10:30:00Z",
+    updatedAt: "2026-02-27T10:30:00Z",
+  },
+  {
+    id: "contact-002",
+    name: "Nguyễn Văn Hùng",
+    phone: "0923456789",
+    email: "hung.nguyen@email.com",
+    ageGroup: "adults",
+    level: "beginner",
+    needs: "hỗ trợ kỹ thuật",
+    preferredTime: "evening",
+    note: "Muốn bắt đầu học cờ vua lại sau 20 năm",
+    status: "reviewed",
+    createdAt: "2026-02-25T15:45:00Z",
+    updatedAt: "2026-02-26T09:00:00Z",
+    handledBy: "admin-001",
+  },
+  {
+    id: "contact-003",
+    name: "Trần Thu Hương",
+    phone: "0934567890",
+    email: "huong.tran@email.com",
+    ageGroup: "13-18",
+    level: "intermediate",
+    needs: "tư vấn",
+    preferredTime: "afternoon",
+    status: "responded",
+    createdAt: "2026-02-24T12:00:00Z",
+    updatedAt: "2026-02-25T14:30:00Z",
+    handledBy: "admin-001",
+    response: "Khóa học Chiến thuật trung cấp rất phù hợp với bạn",
+    respondedAt: "2026-02-25T14:30:00Z",
+  },
+]
+
+// Mock registrations
+export const mockRegistrations: Registration[] = [
+  {
+    id: "reg-001",
+    course: "opening-basics-e4",
+    courseNote: "",
+    studentName: "Nguyễn Minh Hùng",
+    studentBirthYear: "2015",
+    parentName: "Nguyễn Văn A",
+    phone: "0912345678",
+    email: "hung.minh@email.com",
+    preferredTimes: ["Tuesday", "Thursday"],
+    notes: "Con em đã tham gia khóa free basics",
+    status: "pending",
+    createdAt: "2026-02-26T10:30:00Z",
+    updatedAt: "2026-02-26T10:30:00Z",
+  },
+  {
+    id: "reg-002",
+    course: "tactics-intermediate",
+    courseNote: "Muốn nâng cao chiến thuật",
+    studentName: "Trần Thị Hà",
+    studentBirthYear: "2012",
+    parentName: "Trần Văn B",
+    phone: "0923456789",
+    email: "ha.tran@email.com",
+    preferredTimes: ["Monday", "Wednesday", "Friday"],
+    notes: "",
+    status: "approved",
+    createdAt: "2026-02-20T14:00:00Z",
+    updatedAt: "2026-02-22T11:45:00Z",
+    approvedAt: "2026-02-22T11:45:00Z",
+    approvedBy: "admin-001",
+  },
+  {
+    id: "reg-003",
+    course: "endgame-mastery",
+    courseNote: "",
+    studentName: "Lê Văn Cường",
+    studentBirthYear: "2013",
+    parentName: "Lê Văn C",
+    phone: "0934567890",
+    email: "cuong.le@email.com",
+    preferredTimes: ["Saturday", "Sunday"],
+    notes: "Muốn luyện thi",
+    status: "rejected",
+    createdAt: "2026-02-18T09:15:00Z",
+    updatedAt: "2026-02-19T16:30:00Z",
+    rejectionReason: "Lớp đã đủ học viên, vui lòng đăng ký khoá sau",
+  },
+]

@@ -60,8 +60,37 @@ const userSchema = new mongoose.Schema(
     //Parent
     address: {
       type: String,
-      required: function () {
-        return this.role === "parent";
+      trim: true,
+    },
+
+    // Common fields
+    name: {
+      type: String,
+      trim: true,
+    },
+    avatar: {
+      type: String,
+      default: "/images/avatars/default.jpg",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    lastLogin: Date,
+    birthDate: Date,
+    bio: String,
+    preferences: {
+      emailNotifications: {
+        type: Boolean,
+        default: true,
+      },
+      pushNotifications: {
+        type: Boolean,
+        default: true,
+      },
+      language: {
+        type: String,
+        default: "vi",
       },
     },
   },

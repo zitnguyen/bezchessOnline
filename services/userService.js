@@ -25,6 +25,12 @@ class UserService {
       experienceYears,
       certification,
       address,
+      name,
+      avatar,
+      isActive,
+      birthDate,
+      bio,
+      preferences,
     } = data;
 
     if (!password) {
@@ -49,6 +55,12 @@ class UserService {
       experienceYears,
       certification,
       address,
+      name,
+      avatar,
+      isActive: isActive !== undefined ? isActive : true,
+      birthDate,
+      bio,
+      preferences,
     });
 
     return await User.findById(user._id).select("-password");
@@ -81,12 +93,31 @@ class UserService {
       throw new AppError("User not found", 404);
     }
 
-    // Không đổi pass và role qua api này
+    // Không đổi pass qua api này
     if (data.password) {
       throw new AppError("Use change password API", 400);
     }
 
-    Object.assign(user, data);
+    // Cho phép cập nhật username, email, phone nếu là admin
+    const allowedFields = [
+      "name",
+      "avatar",
+      "isActive",
+      "birthDate",
+      "bio",
+      "preferences",
+      "specialization",
+      "experienceYears",
+      "certification",
+      "address",
+    ];
+
+    for (const field of allowedFields) {
+      if (data[field] !== undefined) {
+        user[field] = data[field];
+      }
+    }
+
     await user.save();
 
     return await User.findById(id).select("-password");
@@ -94,7 +125,7 @@ class UserService {
 
   //cập nhật profile (user)
   async updateProfile(userId, data) {
-    const { password, role, ...updateData } = data;
+    const { password, role, username, email, phone, ...updateData } = data;
 
     const user = await User.findById(userId);
 

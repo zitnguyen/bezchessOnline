@@ -12,39 +12,17 @@ exports.createCourse = asyncHandler(async (req, res) => {
 });
 //lấy danh sách khóa học
 exports.getAllCourses = asyncHandler(async (req, res) => {
-  require("fs").appendFileSync(
-    "d:\\bezchessd\\debug.log",
-    `[COURSES] Called with query: ${JSON.stringify(req.query)}\n`,
-  );
-  try {
-    const result = await courseService.getAllCourses(req.query);
-    require("fs").appendFileSync(
-      "d:\\bezchessd\\debug.log",
-      `[COURSES] Service returned: ${Object.keys(result).join(",")}\n`,
-    );
+  const result = await courseService.getAllCourses(req.query);
 
-    const responsePayload = {
-      success: true,
-      data: result.courses,
-      pagination: {
-        total: result.total,
-        totalPages: result.totalPages,
-        currentPage: result.currentPage,
-      },
-    };
-
-    require("fs").appendFileSync(
-      "d:\\bezchessd\\debug.log",
-      `[COURSES] Sending response with keys: ${Object.keys(responsePayload).join(",")}\n`,
-    );
-    res.status(200).json(responsePayload);
-  } catch (err) {
-    require("fs").appendFileSync(
-      "d:\\bezchessd\\debug.log",
-      `[COURSES] ERROR: ${err.message}\n`,
-    );
-    throw err;
-  }
+  res.status(200).json({
+    success: true,
+    data: result.courses,
+    pagination: {
+      total: result.total,
+      totalPages: result.totalPages,
+      currentPage: result.currentPage,
+    },
+  });
 });
 //lấy chi tiết khóa học
 exports.getCourse = asyncHandler(async (req, res) => {

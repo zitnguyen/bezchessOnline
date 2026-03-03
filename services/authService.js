@@ -20,7 +20,7 @@ const generateRefreshToken = () => {
 };
 //đăng ký
 exports.signupService = async (data) => {
-  const { username, password, email, fullName, phone, address } = data;
+  const { username, password, email, name, phone, address, role } = data;
 
   // validation required
   if (!username || !password || !phone || !email) {
@@ -63,10 +63,10 @@ exports.signupService = async (data) => {
     username,
     password,
     email,
-    fullName,
+    name,
     phone,
     address,
-    role: "parent",
+    role: role || "parent",
   });
 
   return user;
@@ -83,6 +83,10 @@ exports.signinService = async (username, password, req) => {
   if (!user || !(await user.matchPassword(password))) {
     throw new AppError("Invalid credentials", 401);
   }
+
+  // Cập nhật lastLogin
+  user.lastLogin = new Date();
+  await user.save();
 
   const accessToken = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken();

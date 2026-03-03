@@ -1,6 +1,20 @@
 const enrollmentService = require("../services/enrollmentService");
 const asyncHandler = require("../middleware/asyncHandler");
 
+//Đăng ký khóa học
+exports.createEnrollment = asyncHandler(async (req, res) => {
+  const { courseId } = req.params;
+  const userId = req.user.id;
+
+  const enrollment = await enrollmentService.createEnrollment(userId, courseId);
+
+  res.status(201).json({
+    success: true,
+    message: "Enrolled in course successfully",
+    data: enrollment,
+  });
+});
+
 //Lấy danh sách khóa học đã đăng ký
 exports.getMyCourses = asyncHandler(async (req, res) => {
   const data = await enrollmentService.getMyCourses(req.user.id);

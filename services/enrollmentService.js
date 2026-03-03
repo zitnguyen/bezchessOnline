@@ -1,6 +1,28 @@
 const Enrollment = require("../models/Enrollment");
 const AppError = require("../utils/AppError");
 
+//đăng ký khóa học
+exports.createEnrollment = async (userId, courseId) => {
+  const existingEnrollment = await Enrollment.findOne({
+    userId,
+    courseId,
+    status: "active",
+  });
+
+  if (existingEnrollment) {
+    throw new AppError("You are already enrolled in this course", 400);
+  }
+
+  const enrollment = await Enrollment.create({
+    userId,
+    courseId,
+    status: "active",
+    enrolledAt: new Date(),
+  });
+
+  return enrollment.populate("courseId", "title slug price");
+};
+
 //kiểm tra quyền truy cập khóa học
 exports.checkCourseAccess = async (userId, courseId) => {
   const enrollment = await Enrollment.findOne({

@@ -58,6 +58,7 @@ const lessonSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    shortDescription: String,
   },
   { timestamps: true },
 );

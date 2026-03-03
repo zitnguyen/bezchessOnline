@@ -34,6 +34,26 @@ const studentSchema = new mongoose.Schema(
       default: "beginner",
     },
 
+    email: {
+      type: String,
+      trim: true,
+    },
+    phone: String,
+    avatar: {
+      type: String,
+      default: "/images/avatars/default.jpg",
+    },
+    studentId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    progress: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
     note: {
       type: String,
     },
